@@ -50,6 +50,7 @@ PAISES_ORIGEN = [
     "Zimbabwe", "Zona Neutral Iraq-Arabia Saudita", "Zona del Canal de Panamá"
 ]
 # --- DISEÑO UI / UX ---
+# --- DISEÑO UI / UX ---
 st.markdown("""
     <style>
     .stApp, .block-container { background-color: #f0f4f8 !important; }
@@ -65,45 +66,56 @@ st.markdown("""
     div[data-baseweb="popover"], div[data-baseweb="popover"] ul, div[data-baseweb="popover"] li { background-color: #ffffff !important; color: #000000 !important; }
     div[data-baseweb="popover"] li:hover { background-color: #e9ecef !important; color: #0d2b49 !important; }
     
-    /* --- TRADUCCIÓN DEFINITIVA ÁREA DE CARGA --- */
-    [data-testid="stFileUploader"] section { background-color: #ffffff !important; border: 2px dashed #1a73e8 !important; border-radius: 8px !important; }
+    /* --- TRADUCCIÓN PERFECTA DEL ÁREA DE CARGA --- */
+    [data-testid="stFileUploader"] section { 
+        background-color: #ffffff !important; 
+        border: 2px dashed #1a73e8 !important; 
+        border-radius: 8px !important; 
+    }
     
-    /* Ocultar los textos originales en inglés */
-    [data-testid="stFileUploadDropzone"] > div > div > span,
-    [data-testid="stFileUploadDropzone"] > div > div > small { display: none !important; }
+    /* 1. Ocultar textos originales en inglés reduciendo su tamaño a cero */
+    [data-testid="stFileUploadDropzone"] > div > div {
+        font-size: 0px !important; 
+        color: transparent !important;
+    }
     
-    /* Insertar los nuevos textos en español */
+    /* 2. Crear texto principal en español */
     [data-testid="stFileUploadDropzone"] > div > div::before {
         content: "Arrastra y suelta tu archivo PDF aquí";
         color: #0d2b49 !important;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 16px !important; /* Tamaño normal para nuestro texto */
         display: block;
         margin-bottom: 5px;
     }
+    
+    /* 3. Crear subtítulo en español */
     [data-testid="stFileUploadDropzone"] > div > div::after {
         content: "Límite de 200MB por archivo • PDF";
         color: #495057 !important;
-        font-size: 14px;
+        font-size: 14px !important; /* Tamaño normal para nuestro texto */
         display: block;
         margin-bottom: 10px;
     }
     
-    /* Configuración del botón */
+    /* 4. Arreglar el botón gris */
     [data-testid="stFileUploader"] button {
         background-color: #e9ecef !important;
         border: 1px solid #ced4da !important;
+        font-size: 0px !important; /* Desaparece la palabra 'Browse files' */
+        color: transparent !important;
+        position: relative;
     }
-    /* Ocultar el contenido interno del botón ("Browse files") */
-    [data-testid="stFileUploader"] button * {
-        display: none !important;
-    }
-    /* Agregar el texto en español al botón */
     [data-testid="stFileUploader"] button::after {
         content: "Buscar archivo";
         color: #000000 !important;
         font-weight: 700 !important;
-        display: block !important;
+        font-size: 14px !important; /* Aparece nuestro texto en el centro */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: block;
     }
     /* --- FIN TRADUCCIÓN --- */
 
@@ -375,4 +387,5 @@ else:
     </div>
 
     """, unsafe_allow_html=True)
+
 
