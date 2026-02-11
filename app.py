@@ -65,9 +65,17 @@ st.markdown("""
     div[data-baseweb="select"] span, div[data-baseweb="select"] div { color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
     div[data-baseweb="popover"], div[data-baseweb="popover"] ul, div[data-baseweb="popover"] li { background-color: #ffffff !important; color: #000000 !important; }
     div[data-baseweb="popover"] li:hover { background-color: #e9ecef !important; color: #0d2b49 !important; }
+    
+    /* TRADUCCIÓN DEL ZONA DE ARCHIVOS */
     [data-testid="stFileUploader"] section { background-color: #ffffff !important; border: 2px dashed #1a73e8 !important; border-radius: 8px !important; }
     [data-testid="stFileUploader"] section * { color: #0d2b49 !important; }
-    [data-testid="stFileUploader"] button { background-color: #e9ecef !important; color: #000000 !important; border: 1px solid #ced4da !important; }
+    [data-testid="stFileUploadDropzone"] div div::before { content: "Arrastra y suelta tu archivo PDF aquí"; color: #0d2b49 !important; font-size: 16px; font-weight: 600; display: block; margin-bottom: 5px; }
+    [data-testid="stFileUploadDropzone"] div div span { display: none; }
+    [data-testid="stFileUploadDropzone"] div div::after { content: "Límite de 200MB por archivo • PDF"; color: #495057 !important; font-size: 14px; display: block; margin-bottom: 10px; }
+    [data-testid="stFileUploadDropzone"] div div small { display: none; }
+    [data-testid="stFileUploader"] button { background-color: #e9ecef !important; color: transparent !important; border: 1px solid #ced4da !important; position: relative;}
+    [data-testid="stFileUploadDropzone"] button::after { content: "Buscar archivo"; color: #000000 !important; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: 600; }
+    
     label p { font-weight: 600 !important; color: #495057 !important; font-size: 13px !important; margin-bottom: 5px !important; }
     .stCheckbox p { font-weight: bold !important; color: #0d2b49 !important; }
     div[data-testid="stExpander"] details summary p { color: #0d2b49 !important; font-weight: 800 !important; font-size: 16px !important; }
@@ -334,4 +342,5 @@ else:
         <h2 style="color: #0d2b49;">👋 Bienvenido al Gestor de Solicitudes</h2>
         <p style="font-size: 16px; color: #495057;">Por favor, arrastra un archivo <b>PDF de Pedimento</b> en la barra superior para comenzar a extraer los datos.</p>
     </div>
+
     """, unsafe_allow_html=True)
