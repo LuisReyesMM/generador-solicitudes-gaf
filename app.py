@@ -52,36 +52,52 @@ PAISES_ORIGEN = [
 # --- DISEÑO UI / UX ---
 # --- DISEÑO UI / UX ---
 st.markdown("""
-<style>
-
-/* Ocultar textos originales del file uploader */
-[data-testid="stFileUploader"] small {
-    display: none !important;
-}
-
-[data-testid="stFileUploader"] span {
-    display: none !important;
-}
-
-/* Agregar texto personalizado en español */
-[data-testid="stFileUploader"] section::before {
-    content: "Arrastra y suelta tu archivo aquí";
-    display: block;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #0d2b49;
-}
-
-[data-testid="stFileUploader"] section::after {
-    content: "Límite 200MB por archivo · Solo PDF";
-    display: block;
-    font-size: 13px;
-    color: #495057;
-    margin-top: 5px;
-}
-
-</style>
+    <style>
+    /* 1. FORZAR FONDO BLANCO Y TEXTOS OSCUROS */
+    .stApp, .block-container { background-color: #f0f4f8 !important; }
+    .stApp p, .stApp span, .stApp label, div[data-testid="stMarkdownContainer"] { color: #212529 !important; }
+    .stApp h1, .stApp h2, .stApp h3 { color: #0d2b49 !important; font-weight: 800 !important; }
+    .block-container { background-color: #ffffff !important; padding: 3rem !important; border-radius: 12px !important; box-shadow: 0px 8px 24px rgba(0,0,0,0.08) !important; max-width: 1100px !important; margin-top: 2rem !important; border-top: 8px solid #0d2b49 !important; }
+    .seccion-header { background-color: #e9ecef !important; color: #0d2b49 !important; padding: 12px 18px !important; border-left: 6px solid #0d2b49 !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 15px !important; margin-top: 35px !important; margin-bottom: 20px !important; border-radius: 4px !important; }
+    
+    /* 2. CAJAS DE TEXTO Y MENÚS */
+    .stTextInput input, .stTextArea textarea, .stDateInput input { background-color: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 1px solid #ced4da !important; border-radius: 6px !important; padding: 10px !important; }
+    .stTextInput input:disabled, .stTextArea textarea:disabled { background-color: #eef2f5 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; opacity: 1 !important; cursor: not-allowed; font-weight: 500 !important; }
+    .stTextInput input:focus { border-color: #1a73e8 !important; box-shadow: 0 0 0 1px #1a73e8 !important; }
+    div[data-baseweb="select"] > div { background-color: #ffffff !important; border: 1px solid #ced4da !important; border-radius: 6px !important; }
+    div[data-baseweb="select"] span, div[data-baseweb="select"] div { color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
+    div[data-baseweb="popover"], div[data-baseweb="popover"] ul, div[data-baseweb="popover"] li { background-color: #ffffff !important; color: #000000 !important; }
+    div[data-baseweb="popover"] li:hover { background-color: #e9ecef !important; color: #0d2b49 !important; }
+    
+    /* 3. TRADUCCIÓN EN ESPAÑOL (MÉTODO CHATGPT MEJORADO) */
+    [data-testid="stFileUploader"] section { background-color: #ffffff !important; border: 2px dashed #1a73e8 !important; border-radius: 8px !important; }
+    [data-testid="stFileUploader"] small { display: none !important; }
+    [data-testid="stFileUploader"] span { display: none !important; }
+    [data-testid="stFileUploader"] section::before { content: "Arrastra y suelta tu archivo PDF aquí"; display: block; font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #0d2b49 !important; }
+    [data-testid="stFileUploader"] section::after { content: "Límite 200MB por archivo · Solo PDF"; display: block; font-size: 13px; color: #495057 !important; margin-top: 5px; }
+    
+    /* Botón Buscar Archivo */
+    [data-testid="stFileUploader"] button { background-color: #e9ecef !important; color: transparent !important; border: 1px solid #ced4da !important; position: relative; }
+    [data-testid="stFileUploader"] button::after { content: "Buscar archivo"; color: #000000 !important; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: 600; font-size: 14px; display: block;}
+    
+    /* 4. PARTIDAS Y BOTONES */
+    label p { font-weight: 600 !important; color: #495057 !important; font-size: 13px !important; margin-bottom: 5px !important; }
+    .stCheckbox p { font-weight: bold !important; color: #0d2b49 !important; }
+    div[data-testid="stExpander"] details summary p { color: #0d2b49 !important; font-weight: 800 !important; font-size: 16px !important; }
+    div[data-testid="stExpander"] details summary svg { fill: #0d2b49 !important; color: #0d2b49 !important; }
+    div[data-testid="stExpander"] { border: 2px solid #1a73e8 !important; border-radius: 8px !important; background-color: #f8fbff !important; margin-bottom: 15px !important; }
+    [data-testid="stExpanderDetails"] { border-top: 1px solid #dee2e6 !important; background-color: #ffffff !important; padding: 20px !important; border-radius: 0 0 8px 8px !important; }
+    
+    .stButton button { background-color: #1a73e8 !important; border: none !important; border-radius: 8px !important; padding: 15px !important; transition: all 0.3s ease; }
+    .stButton button p { color: #ffffff !important; font-weight: bold !important; font-size: 14px !important; display: block !important;}
+    .stButton button:hover { background-color: #1557b0 !important; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(26,115,232,0.4); }
+    
+    .stDownloadButton button { background-color: #28a745 !important; border: none !important; border-radius: 8px !important; padding: 15px !important; width: 100% !important; }
+    .stDownloadButton button p { color: #ffffff !important; font-weight: bold !important; font-size: 15px !important; display: block !important;}
+    .stDownloadButton button:hover { background-color: #218838 !important; box-shadow: 0 4px 10px rgba(40,167,69,0.4) !important; }
+    
+    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+    </style>
 """, unsafe_allow_html=True)
 
 
@@ -337,6 +353,7 @@ else:
     </div>
 
     """, unsafe_allow_html=True)
+
 
 
 
