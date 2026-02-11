@@ -58,12 +58,36 @@ st.markdown("""
     .stApp h1, .stApp h2, .stApp h3 { color: #0d2b49 !important; font-weight: 800 !important; }
     .block-container { background-color: #ffffff !important; padding: 3rem !important; border-radius: 12px !important; box-shadow: 0px 8px 24px rgba(0,0,0,0.08) !important; max-width: 1100px !important; margin-top: 2rem !important; border-top: 8px solid #0d2b49 !important; }
     .seccion-header { background-color: #e9ecef !important; color: #0d2b49 !important; padding: 12px 18px !important; border-left: 6px solid #0d2b49 !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 15px !important; margin-top: 35px !important; margin-bottom: 20px !important; border-radius: 4px !important; }
-    .stTextInput input, .stTextArea textarea, .stDateInput input { background-color: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 1px solid #ced4da !important; border-radius: 6px !important; padding: 10px !important; }
-    .stTextInput input:disabled, .stTextArea textarea:disabled { background-color: #eef2f5 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; opacity: 1 !important; cursor: not-allowed; font-weight: 500 !important; }
-    div[data-baseweb="select"] > div { background-color: #ffffff !important; border: 1px solid #ced4da !important; border-radius: 6px !important; }
-    div[data-baseweb="select"] span, div[data-baseweb="select"] div { color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
     
-    /* TRADUCCIÓN CAJA DE CARGA */
+    /* INPUTS */
+    .stTextInput input, .stTextArea textarea, .stDateInput input { 
+        background-color: #ffffff !important; 
+        color: #000000 !important; 
+        -webkit-text-fill-color: #000000 !important; 
+        border: 1px solid #ced4da !important; 
+        border-radius: 6px !important; 
+        padding: 10px !important; 
+    }
+    .stTextInput input:disabled, .stTextArea textarea:disabled { 
+        background-color: #eef2f5 !important; 
+        color: #000000 !important; 
+        opacity: 1 !important; 
+    }
+    div[data-baseweb="select"] > div { background-color: #ffffff !important; border: 1px solid #ced4da !important; }
+    div[data-baseweb="select"] span, div[data-baseweb="select"] div { color: #000000 !important; }
+    
+    /* PARTIDAS (EXPANDER) */
+    div[data-testid="stExpander"] details summary {
+        background-color: #0d2b49 !important;
+        color: #ffffff !important;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    div[data-testid="stExpander"] details summary p { color: #ffffff !important; font-weight: 600 !important; }
+    div[data-testid="stExpander"] details summary svg { fill: #ffffff !important; color: #ffffff !important; }
+    div[data-testid="stExpander"] { border: 1px solid #0d2b49 !important; border-radius: 8px !important; background-color: #ffffff !important; }
+    div[data-testid="stExpanderDetails"] { background-color: #ffffff !important; color: #000000 !important; padding-top: 10px !important; }
+
+    /* CAJA DE CARGA */
     [data-testid="stFileUploader"] section { background-color: #ffffff !important; border: 2px dashed #1a73e8 !important; border-radius: 8px !important; }
     [data-testid="stFileUploader"] small, [data-testid="stFileUploader"] span { display: none !important; }
     [data-testid="stFileUploader"] section::before { content: "Arrastra y suelta tu archivo PDF aquí"; display: block; font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #0d2b49 !important; }
@@ -112,7 +136,6 @@ def extraer_info_pedimento(pdf_file):
         for page in pdf.pages:
             texto_completo += page.extract_text() + "\n"
     
-    # 1. NOMBRE Y RFC
     try:
         parte_nombre = texto_completo.split("NOMBRE, DENOMINACION O RAZON SOCIAL:")[1]
         nombre_final = parte_nombre.split("DOMICILIO:")[0].replace("CURP:", "").replace("\n", " ")
@@ -129,12 +152,10 @@ def extraer_info_pedimento(pdf_file):
     match_rfc = re.search(r'RFC:?\s*([A-Z0-9]{12,13})', texto_completo)
     if match_rfc: datos_grales['rfc'] = match_rfc.group(1)
     
-    # 2. PEDIMENTO (CORREGIDO: MANTIENE ESPACIOS)
     match_ped = re.search(r'NUM\.?\s*PEDIMENTO:?\s*([\d\s]{15,})', texto_completo)
     if match_ped: 
         datos_grales['pedimento'] = match_ped.group(1).strip()
 
-    # 3. PRIORIDAD FACTURA (GODF sobre COVE)
     try:
         bloque = texto_completo.split("NUM. CFDI O DOCUMENTO EQUIVALENTE")[1].split("TRANSPORTE")[0]
         lineas = [l.strip() for l in bloque.split('\n') if len(l.strip()) > 5]
@@ -145,56 +166,65 @@ def extraer_info_pedimento(pdf_file):
         datos_grales['factura_auto'] = otro_val if otro_val else (cove_val if cove_val else "")
     except: pass
 
-    # 4. PARTIDAS Y DESCRIPCIÓN ULTRA-PRECISA
+    # 4. PARTIDAS: EXTRACCIÓN DE UMC, LOTE Y DESCRIPCIÓN
     match_total = re.search(r'NUM\. TOTAL DE PARTIDAS:\s*(\d+)', texto_completo)
     total_ped = int(match_total.group(1)) if match_total else 999
     
     patron = re.compile(r'\b(\d{3})\s+(\d{8})\b')
     vistos = set()
     
-    # PALABRAS DE FRENO (STOP WORDS)
-    # Si encontramos esto, dejamos de leer la descripción inmediatamente
     palabras_freno = [
         "CLAVE", "NUM. PERMISO", "FIRMA DESCARGO", "VAL. COM.", "CANTIDAD UMT", 
         "IDENTIF", "COMPLEMENTO", "OBSERVACIONES", "VIN", "MARCA", "MODELO",
         "VALOR", "IMPORTE", "PRECIO", "NOM-", "TASA"
     ]
-    
-    # PALABRAS BASURA DENTRO DE LA LÍNEA
     palabras_basura = ["CHN", "IGI", "IVA", "CON."]
 
     for m in patron.finditer(texto_completo):
         if m.group(1) not in vistos and len(partidas_detectadas) < total_ped:
             vistos.add(m.group(1))
             
+            # 1. Extracción de UMC y LOTE (columnas 6 y 7)
+            # Buscamos la línea exacta donde está la partida
+            linea_base_match = texto_completo[m.start():texto_completo.find('\n', m.start())]
+            partes_linea = linea_base_match.split()
+            
+            val_umc = ""
+            val_lote = ""
+            
+            # En tu PDF la estructura es: SEC FRAC ... ... ... UMC LOTE
+            # Índices en Python (0-based): UMC es el 5, LOTE es el 6
+            if len(partes_linea) >= 7:
+                try:
+                    val_umc = partes_linea[5] 
+                    val_lote = partes_linea[6]
+                except: pass
+
+            # 2. Extracción de Descripción (con freno)
             inicio_desc = m.end()
             chunk = texto_completo[inicio_desc:inicio_desc+1500] 
             lineas = chunk.split('\n')
             desc_lineas = []
             
-            for l in lineas[:30]: # Revisamos hasta 30 líneas
+            for l in lineas[:30]: 
                 l_limpia = l.strip()
+                if any(kw in l_limpia for kw in palabras_freno): break
+                if re.match(r'^[\d\.\s,]+$', l_limpia) and len(l_limpia) > 5: break
                 
-                # 1. FRENO DE MANO: Si encontramos una palabra clave de otra sección, PARAMOS.
-                if any(kw in l_limpia for kw in palabras_freno):
-                    break
-                
-                # 2. FRENO DE NÚMEROS: Si la línea parece ser solo valores numéricos (ej: 76530 76530), PARAMOS.
-                # Detecta líneas que son mayormente dígitos y puntos
-                if re.match(r'^[\d\.\s,]+$', l_limpia) and len(l_limpia) > 5:
-                    break
-
-                # 3. LIMPIEZA DE INICIO: Quitamos números de columna colados al principio (ej: "0 1 1 FORMAS...")
                 l_sin_numeros = re.sub(r'^[\d\s]+', '', l_limpia)
-                
-                # 4. FILTRADO DE CONTENIDO
                 if len(l_sin_numeros) > 2:
                     if not any(b in l_sin_numeros for b in palabras_basura):
                         desc_lineas.append(l_sin_numeros)
             
             desc_final = " ".join(desc_lineas).replace(m.group(2), "").strip()
             
-            partidas_detectadas.append({"secuencia": m.group(1), "fraccion": m.group(2), "producto": desc_final})
+            partidas_detectadas.append({
+                "secuencia": m.group(1), 
+                "fraccion": m.group(2), 
+                "producto": desc_final,
+                "umc_auto": val_umc,
+                "lote_auto": val_lote
+            })
             
     return datos_grales, partidas_detectadas
 
@@ -263,15 +293,18 @@ if archivo_pdf:
 
         for p in all_partidas:
             if p['secuencia'] in partidas_seleccionadas:
-                with st.expander(f"📦 Editar Partida {p['secuencia']} - Fracción: {p['fraccion']}"):
+                with st.expander(f"📦 Partida {p['secuencia']} - Fracción Arancelaria: {p['fraccion']}"):
                     p_prod = st.text_area("Producto:", value=p.get('producto', ''), height=60, key=f"prod_{p['secuencia']}")
                     p_marca = st.text_input("Marca:", key=f"marca_{p['secuencia']}")
                     p_modelo = st.text_input("Modelo(s):", key=f"mod_{p['secuencia']}")
                     p_pais = st.selectbox("País de origen:", PAISES_ORIGEN, key=f"pais_{p['secuencia']}")
                     p_pedimento = st.text_input("*Pedimento:", value=d['pedimento'], key=f"ped_{p['secuencia']}")
                     p_factura = st.text_input("*Factura y/o lista de empaque:", value=d['factura_auto'], key=f"f_{p['secuencia']}")
-                    p_lote = st.text_input("*Tamaño del lote:", key=f"lote_{p['secuencia']}")
-                    p_umc = st.text_input("*UMC: (Unidad de Medida Comercial)", value="PIEZA", key=f"umc_{p['secuencia']}")
+                    
+                    # AQUÍ SE RELLENAN AUTOMÁTICAMENTE UMC Y LOTE (Indices corregidos)
+                    p_lote = st.text_input("*Tamaño del lote:", value=p.get('lote_auto', ''), key=f"lote_{p['secuencia']}")
+                    p_umc = st.text_input("*UMC: (Unidad de Medida Comercial)", value=p.get('umc_auto', ''), key=f"umc_{p['secuencia']}")
+                    
                     p_folios = st.text_input("Folio(s):", key=f"fol_{p['secuencia']}")
                     
                     datos_editados[p['secuencia']] = {
