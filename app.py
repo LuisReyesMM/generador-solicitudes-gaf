@@ -10,7 +10,7 @@ from datetime import date
 # --- CONFIGURACIÓN ---
 st.set_page_config(layout="wide", page_title="Sistema de Inspección GAF", page_icon="🏢")
 
-# --- LISTA DE PAÍSES (ORDENADA ALFABÉTICAMENTE) ---
+# --- LISTA DE PAÍSES ---
 PAISES_ORIGEN = [
     "Elige un país...", "Andorra", "Angola", "Anguila", "Antártida", "Antigua y Barbuda", "Antillas Neerlandesas", "Arabia Saudita", 
     "Argelia", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaiyán", "Bahamas", "Bahréin", 
@@ -49,62 +49,42 @@ PAISES_ORIGEN = [
     "Uganda", "Uruguay", "Uzbejistan", "Vanuatu", "Venezuela", "Vietnam", "Vírgenes. Islas", "Yemen", "Zambia", 
     "Zimbabwe", "Zona Neutral Iraq-Arabia Saudita", "Zona del Canal de Panamá"
 ]
-# --- DISEÑO UI / UX ---
+
 # --- DISEÑO UI / UX ---
 st.markdown("""
     <style>
-    /* 1. FORZAR FONDO BLANCO Y TEXTOS OSCUROS */
     .stApp, .block-container { background-color: #f0f4f8 !important; }
     .stApp p, .stApp span, .stApp label, div[data-testid="stMarkdownContainer"] { color: #212529 !important; }
     .stApp h1, .stApp h2, .stApp h3 { color: #0d2b49 !important; font-weight: 800 !important; }
     .block-container { background-color: #ffffff !important; padding: 3rem !important; border-radius: 12px !important; box-shadow: 0px 8px 24px rgba(0,0,0,0.08) !important; max-width: 1100px !important; margin-top: 2rem !important; border-top: 8px solid #0d2b49 !important; }
     .seccion-header { background-color: #e9ecef !important; color: #0d2b49 !important; padding: 12px 18px !important; border-left: 6px solid #0d2b49 !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 15px !important; margin-top: 35px !important; margin-bottom: 20px !important; border-radius: 4px !important; }
-    
-    /* 2. CAJAS DE TEXTO Y MENÚS */
     .stTextInput input, .stTextArea textarea, .stDateInput input { background-color: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 1px solid #ced4da !important; border-radius: 6px !important; padding: 10px !important; }
     .stTextInput input:disabled, .stTextArea textarea:disabled { background-color: #eef2f5 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; opacity: 1 !important; cursor: not-allowed; font-weight: 500 !important; }
-    .stTextInput input:focus { border-color: #1a73e8 !important; box-shadow: 0 0 0 1px #1a73e8 !important; }
     div[data-baseweb="select"] > div { background-color: #ffffff !important; border: 1px solid #ced4da !important; border-radius: 6px !important; }
     div[data-baseweb="select"] span, div[data-baseweb="select"] div { color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
-    div[data-baseweb="popover"], div[data-baseweb="popover"] ul, div[data-baseweb="popover"] li { background-color: #ffffff !important; color: #000000 !important; }
-    div[data-baseweb="popover"] li:hover { background-color: #e9ecef !important; color: #0d2b49 !important; }
     
-    /* 3. TRADUCCIÓN EN ESPAÑOL (MÉTODO CHATGPT MEJORADO) */
+    /* TRADUCCIÓN CAJA DE CARGA */
     [data-testid="stFileUploader"] section { background-color: #ffffff !important; border: 2px dashed #1a73e8 !important; border-radius: 8px !important; }
-    [data-testid="stFileUploader"] small { display: none !important; }
-    [data-testid="stFileUploader"] span { display: none !important; }
+    [data-testid="stFileUploader"] small, [data-testid="stFileUploader"] span { display: none !important; }
     [data-testid="stFileUploader"] section::before { content: "Arrastra y suelta tu archivo PDF aquí"; display: block; font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #0d2b49 !important; }
     [data-testid="stFileUploader"] section::after { content: "Límite 200MB por archivo · Solo PDF"; display: block; font-size: 13px; color: #495057 !important; margin-top: 5px; }
-    
-    /* Botón Buscar Archivo */
     [data-testid="stFileUploader"] button { background-color: #e9ecef !important; color: transparent !important; border: 1px solid #ced4da !important; position: relative; }
     [data-testid="stFileUploader"] button::after { content: "Buscar archivo"; color: #000000 !important; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: 600; font-size: 14px; display: block;}
     
-    /* 4. PARTIDAS Y BOTONES */
-    label p { font-weight: 600 !important; color: #495057 !important; font-size: 13px !important; margin-bottom: 5px !important; }
-    .stCheckbox p { font-weight: bold !important; color: #0d2b49 !important; }
-    div[data-testid="stExpander"] details summary p { color: #0d2b49 !important; font-weight: 800 !important; font-size: 16px !important; }
-    div[data-testid="stExpander"] details summary svg { fill: #0d2b49 !important; color: #0d2b49 !important; }
-    div[data-testid="stExpander"] { border: 2px solid #1a73e8 !important; border-radius: 8px !important; background-color: #f8fbff !important; margin-bottom: 15px !important; }
-    [data-testid="stExpanderDetails"] { border-top: 1px solid #dee2e6 !important; background-color: #ffffff !important; padding: 20px !important; border-radius: 0 0 8px 8px !important; }
-    
-    .stButton button { background-color: #1a73e8 !important; border: none !important; border-radius: 8px !important; padding: 15px !important; transition: all 0.3s ease; }
+    .stButton button { background-color: #1a73e8 !important; border: none !important; border-radius: 8px !important; padding: 15px !important; width: 100%; }
     .stButton button p { color: #ffffff !important; font-weight: bold !important; font-size: 14px !important; display: block !important;}
-    .stButton button:hover { background-color: #1557b0 !important; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(26,115,232,0.4); }
-    
-    .stDownloadButton button { background-color: #28a745 !important; border: none !important; border-radius: 8px !important; padding: 15px !important; width: 100% !important; }
-    .stDownloadButton button p { color: #ffffff !important; font-weight: bold !important; font-size: 15px !important; display: block !important;}
-    .stDownloadButton button:hover { background-color: #218838 !important; box-shadow: 0 4px 10px rgba(40,167,69,0.4) !important; }
+    .stDownloadButton button { background-color: #28a745 !important; border: none !important; border-radius: 8px !important; padding: 20px !important; width: 100% !important; font-size: 18px !important; }
+    .stDownloadButton button p { color: #ffffff !important; font-weight: bold !important; font-size: 18px !important; display: block !important;}
+    .stDownloadButton button:hover { background-color: #218838 !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(33,136,56,0.4); }
     
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-
 TEMPLATE_PATH = "assets/plantilla.docx"
 FIRMA_PATH = "assets/firma.png"
 
-# --- LÓGICA DE EXTRACCIÓN ---
+# --- LÓGICA DE EXTRACCIÓN AVANZADA ---
 def limpiar_direccion_avanzada(texto_domicilio):
     datos = {"calle": "", "num_ext": "", "num_int": "", "colonia": "", "cp": "", "municipio": "", "estado": "CIUDAD DE MEXICO"}
     if not texto_domicilio: return datos
@@ -120,230 +100,259 @@ def limpiar_direccion_avanzada(texto_domicilio):
         partes = bloque.split(',')
         if len(partes) >= 1: datos['colonia'] = partes[0].strip()
         if len(partes) >= 2: datos['municipio'] = partes[1].strip()
-        else:
-            if "AZCAPOTZALCO" in bloque.upper(): datos['municipio'] = "AZCAPOTZALCO"
     match_calle = re.split(r'No\.?\s*Ext', texto_domicilio, flags=re.IGNORECASE)
     if match_calle: datos['calle'] = match_calle[0].replace("DOMICILIO:", "").strip()
     return datos
 
 def extraer_info_pedimento(pdf_file):
-    datos_grales = {"pedimento": "", "rfc": "", "nombre_social": "", "calle": "", "num_ext": "", "num_int": "", "cp": "", "colonia": "", "municipio": "", "estado": "CIUDAD DE MEXICO", "acuse_valor": ""}
-    partidas = []
+    datos_grales = {"pedimento": "", "rfc": "", "nombre_social": "", "calle": "", "num_ext": "", "num_int": "", "cp": "", "colonia": "", "municipio": "", "estado": "CIUDAD DE MEXICO", "factura_auto": ""}
+    partidas_detectadas = []
     texto_completo = ""
     with pdfplumber.open(pdf_file) as pdf:
         for page in pdf.pages:
             texto_completo += page.extract_text() + "\n"
     
-    # EXTRACCIÓN DE NOMBRE CORREGIDA
+    # 1. NOMBRE Y RFC
     try:
-        parte_1 = texto_completo.split("NOMBRE, DENOMINACION O RAZON SOCIAL:")[1]
-        nombre_sucio = parte_1.split("DOMICILIO:")[0]
-        # Limpiamos la palabra "CURP:" y saltos de línea
-        nombre_limpio = nombre_sucio.replace("CURP:", "").replace("CURP", "").replace("\n", " ")
-        # Quitamos espacios múltiples
-        datos_grales['nombre_social'] = re.sub(r'\s+', ' ', nombre_limpio).strip()
-    except:
-        datos_grales['nombre_social'] = ""
-        
+        parte_nombre = texto_completo.split("NOMBRE, DENOMINACION O RAZON SOCIAL:")[1]
+        nombre_final = parte_nombre.split("DOMICILIO:")[0].replace("CURP:", "").replace("\n", " ")
+        datos_grales['nombre_social'] = re.sub(r'\s+', ' ', nombre_final).strip()
+    except: pass
+
     try:
         bloque_domicilio = texto_completo.split("DOMICILIO:")[1][:300] 
         bloque_domicilio_lineal = bloque_domicilio.replace("\n", " ")
         datos_direccion = limpiar_direccion_avanzada(bloque_domicilio_lineal)
         datos_grales.update(datos_direccion)
-    except:
-        pass
-    match_ped = re.search(r'NUM\.?\s*PEDIMENTO:?\s*([\d\s]{15,})', texto_completo)
-    if match_ped: datos_grales['pedimento'] = match_ped.group(1).replace(" ", "")
+    except: pass
+    
     match_rfc = re.search(r'RFC:?\s*([A-Z0-9]{12,13})', texto_completo)
     if match_rfc: datos_grales['rfc'] = match_rfc.group(1)
-    try:
-        if "ACUSE DE VALOR" in texto_completo:
-            bloque_acuse = texto_completo.split("ACUSE DE VALOR")[1][:200]
-            match_cove = re.search(r'(COVE[A-Z0-9]+)', bloque_acuse)
-            if match_cove:
-                datos_grales['acuse_valor'] = match_cove.group(1).strip()
-            else:
-                palabras_ignoradas = ["VINCULACION", "INCOTERM", "TRANSPORTE", "IDENTIFICACION"]
-                cadenas = re.findall(r'[A-Z0-9]{10,}', bloque_acuse)
-                for cadena in cadenas:
-                    if cadena not in palabras_ignoradas:
-                        datos_grales['acuse_valor'] = cadena.strip()
-                        break
-    except Exception as e:
-        datos_grales['acuse_valor'] = ""
-    match_total = re.search(r'NUM\. TOTAL DE PARTIDAS:\s*(\d+)', texto_completo)
-    total_esperado = int(match_total.group(1)) if match_total else 999
-    patron_partida = re.compile(r'\b(\d{3})\s+(\d{8})\b')
-    matches = patron_partida.finditer(texto_completo)
-    secuencias_vistas = set()
-    for match in matches:
-        sec = match.group(1)
-        fraccion = match.group(2)
-        if sec in secuencias_vistas: continue
-        if len(partidas) >= total_esperado: break
-        secuencias_vistas.add(sec)
-        inicio_desc = match.end()
-        chunk = texto_completo[inicio_desc:inicio_desc+400]
-        lineas = chunk.split('\n')
-        desc_lineas = []
-        for l in lineas[:5]:
-            if len(l.strip()) > 3 and not re.match(r'^[\d\.\s]+$', l):
-                if "CHN" not in l and "IGI" not in l and "IVA" not in l:
-                    desc_lineas.append(l.strip())
-        desc_limpia = " ".join(desc_lineas).replace(fraccion, "").strip()
-        partidas.append({"secuencia": sec, "fraccion": fraccion, "producto": desc_limpia})
-    return datos_grales, partidas
+    
+    # 2. PEDIMENTO (CORREGIDO: MANTIENE ESPACIOS)
+    match_ped = re.search(r'NUM\.?\s*PEDIMENTO:?\s*([\d\s]{15,})', texto_completo)
+    if match_ped: 
+        datos_grales['pedimento'] = match_ped.group(1).strip()
 
-# --- INTERFAZ GRÁFICA ---
+    # 3. PRIORIDAD FACTURA (GODF sobre COVE)
+    try:
+        bloque = texto_completo.split("NUM. CFDI O DOCUMENTO EQUIVALENTE")[1].split("TRANSPORTE")[0]
+        lineas = [l.strip() for l in bloque.split('\n') if len(l.strip()) > 5]
+        cove_val, otro_val = None, None
+        for l in lineas:
+            if "COVE" in l: cove_val = l
+            elif any(char.isdigit() for char in l): otro_val = l
+        datos_grales['factura_auto'] = otro_val if otro_val else (cove_val if cove_val else "")
+    except: pass
+
+    # 4. PARTIDAS Y DESCRIPCIÓN ULTRA-PRECISA
+    match_total = re.search(r'NUM\. TOTAL DE PARTIDAS:\s*(\d+)', texto_completo)
+    total_ped = int(match_total.group(1)) if match_total else 999
+    
+    patron = re.compile(r'\b(\d{3})\s+(\d{8})\b')
+    vistos = set()
+    
+    # PALABRAS DE FRENO (STOP WORDS)
+    # Si encontramos esto, dejamos de leer la descripción inmediatamente
+    palabras_freno = [
+        "CLAVE", "NUM. PERMISO", "FIRMA DESCARGO", "VAL. COM.", "CANTIDAD UMT", 
+        "IDENTIF", "COMPLEMENTO", "OBSERVACIONES", "VIN", "MARCA", "MODELO",
+        "VALOR", "IMPORTE", "PRECIO", "NOM-", "TASA"
+    ]
+    
+    # PALABRAS BASURA DENTRO DE LA LÍNEA
+    palabras_basura = ["CHN", "IGI", "IVA", "CON."]
+
+    for m in patron.finditer(texto_completo):
+        if m.group(1) not in vistos and len(partidas_detectadas) < total_ped:
+            vistos.add(m.group(1))
+            
+            inicio_desc = m.end()
+            chunk = texto_completo[inicio_desc:inicio_desc+1500] 
+            lineas = chunk.split('\n')
+            desc_lineas = []
+            
+            for l in lineas[:30]: # Revisamos hasta 30 líneas
+                l_limpia = l.strip()
+                
+                # 1. FRENO DE MANO: Si encontramos una palabra clave de otra sección, PARAMOS.
+                if any(kw in l_limpia for kw in palabras_freno):
+                    break
+                
+                # 2. FRENO DE NÚMEROS: Si la línea parece ser solo valores numéricos (ej: 76530 76530), PARAMOS.
+                # Detecta líneas que son mayormente dígitos y puntos
+                if re.match(r'^[\d\.\s,]+$', l_limpia) and len(l_limpia) > 5:
+                    break
+
+                # 3. LIMPIEZA DE INICIO: Quitamos números de columna colados al principio (ej: "0 1 1 FORMAS...")
+                l_sin_numeros = re.sub(r'^[\d\s]+', '', l_limpia)
+                
+                # 4. FILTRADO DE CONTENIDO
+                if len(l_sin_numeros) > 2:
+                    if not any(b in l_sin_numeros for b in palabras_basura):
+                        desc_lineas.append(l_sin_numeros)
+            
+            desc_final = " ".join(desc_lineas).replace(m.group(2), "").strip()
+            
+            partidas_detectadas.append({"secuencia": m.group(1), "fraccion": m.group(2), "producto": desc_final})
+            
+    return datos_grales, partidas_detectadas
+
+# --- INTERFAZ ---
 st.markdown("<h2>📄 Generador de Solicitudes GAF</h2>", unsafe_allow_html=True)
-col_file, col_info = st.columns([1, 2])
-with col_file: archivo_pdf = st.file_uploader("📂 Arrastra tu Pedimento (PDF) aquí", type="pdf")
+archivo_pdf = st.file_uploader("Subir Pedimento", type="pdf")
 
 if archivo_pdf:
-    if 'datos_base' not in st.session_state or st.session_state.get('pdf_name') != archivo_pdf.name:
-        with st.spinner("Analizando y estructurando datos..."):
-            st.session_state['datos_base'], st.session_state['partidas'] = extraer_info_pedimento(archivo_pdf)
+    if 'cache_data' not in st.session_state or st.session_state.get('pdf_name') != archivo_pdf.name:
+        with st.spinner("Analizando PDF..."):
+            st.session_state['cache_data'], st.session_state['cache_partidas'] = extraer_info_pedimento(archivo_pdf)
             st.session_state['pdf_name'] = archivo_pdf.name
 
-    datos = st.session_state['datos_base']
-    partidas = st.session_state['partidas']
-
-    # 1. ENCABEZADO
-    st.markdown('<div class="seccion-header">1. ENCABEZADO DE SOLICITUD</div>', unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
-    with c1: v_tipo_servicio = st.text_input("Solicitud (Servicio):", value="")
-    with c2: v_giro = st.text_input("Giro de la empresa:", value="LOGISTICA Y DISTRIBUCION")
-    c3, c4 = st.columns(2)
-    with c3: v_fecha_sol = st.date_input("Fecha de Solicitud:", value=date.today())
-    with c4: v_inspector = st.selectbox("Inspector de Ingreso:", ["Elige un elemento", "Jose de Jesus Leon", "Nicole Danae Jimenez", "Aranza Jimenez"])
-    c5, c6 = st.columns(2)
-    with c5: v_folio_contrato = st.text_input("Folio de Contrato de Prestación de Servicios:")
-    with c6: v_fecha_contrato = st.date_input("Fecha De Contrato:", value=None)
-
-    # 2. SOLICITANTE
-    st.markdown('<div class="seccion-header">2. DATOS DEL SOLICITANTE (FISCAL)</div>', unsafe_allow_html=True)
-    v_razon = st.text_input("Nombre y/o razón social del domicilio fiscal:", value=datos.get('nombre_social'))
-    col_d1, col_d2, col_d3 = st.columns([3, 1, 1])
-    v_calle = col_d1.text_input("Calle:", value=datos.get('calle'))
-    v_ext = col_d2.text_input("No. Ext.:", value=datos.get('num_ext'))
-    v_int = col_d3.text_input("No. Int.:", value=datos.get('num_int'))
-    col_d4, col_d5 = st.columns([1, 2])
-    v_cp = col_d4.text_input("C. P.:", value=datos.get('cp'))
-    v_colonia = col_d5.text_input("Colonia:", value=datos.get('colonia'))
-    col_d6, col_d7 = st.columns([1, 1])
-    v_estado = col_d6.text_input("Estado:", value=datos.get('estado'))
-    v_municipio = col_d7.text_input("Alcaldía o municipio:", value=datos.get('municipio'))
-    col_c1, col_c2 = st.columns([1, 1])
-    v_telefono = col_c1.text_input("Teléfono:")
-    v_correo = col_c2.text_input("Correo electrónico:")
-    v_rfc = st.text_input("R. F. C.:", value=datos.get('rfc'))
-    v_rep_legal = st.text_input("Nombre del Representante Legal:")
-    v_gestor = st.selectbox("Nombre del gestor o apoderado que realiza el trámite (Opcional):", ["Elige un elemento", "Jose Leon", "Danna Jimenez", "Aranza Jimenez"])
-    v_correo_gestor = st.selectbox("Correo electrónico (Gestor):", ["Elige un elemento", "jose@gaf.com", "danna@gaf.com", "aranza@gaf.com"])
-
-    # 3. PRODUCTOS
-    st.markdown('<div class="seccion-header">3. DATOS DEL PRODUCTO (PARTIDAS DETECTADAS)</div>', unsafe_allow_html=True)
-    st.info(f"✅ Se detectaron exitosamente **{len(partidas)} partidas**.")
-    partidas_editadas = []
-    if partidas:
-        for index, p in enumerate(partidas):
-            with st.expander(f"📦 Editar Partida {p['secuencia']} - Fracción: {p['fraccion']}", expanded=(index==0)):
-                p_prod = st.text_area("Producto:", value=p['producto'], height=60, key=f"prod_{index}")
-                p_marca = st.text_input("Marca:", key=f"marca_{index}")
-                p_modelo = st.text_input("Modelo(s):", key=f"mod_{index}")
-                p_pais = st.selectbox("País de origen:", PAISES_ORIGEN, key=f"pais_{index}")
-                p_pedimento = st.text_input("*Pedimento:", value=datos.get('pedimento'), key=f"ped_{index}")
-                p_factura = st.text_input("*Factura y/o lista de empaque:", value=datos.get('acuse_valor', ''), key=f"fac_{index}")
-                p_lote = st.text_input("*Tamaño del lote:", key=f"lote_{index}")
-                p_umc = st.text_input("*UMC: (Unidad de Medida Comercial)", value="PIEZA", key=f"umc_{index}")
-                p_fraccion = st.text_input("*Fracción arancelaria:", value=p['fraccion'], key=f"frac_{index}")
-                p_folios = st.text_input("Folio(s):", key=f"fol_{index}")
-                partidas_editadas.append({
-                    'secuencia': p['secuencia'], 'producto': p_prod, 'marca': p_marca,
-                    'modelo': p_modelo, 'pais': p_pais, 'pedimento': p_pedimento,
-                    'factura': p_factura, 'lote': p_lote, 'umc': p_umc, 
-                    'fraccion': p_fraccion, 'folios': p_folios
-                })
-
-    # 4. INSPECCIÓN
-    st.markdown('<div class="seccion-header">4. DATOS DEL DOMICILIO DE INSPECCIÓN</div>', unsafe_allow_html=True)
-    usar_fiscal = st.checkbox("📍 Usar el mismo domicilio fiscal capturado arriba", value=True)
-    i_calle = st.text_input("Calle:", value=v_calle, disabled=usar_fiscal, key="i_calle")
-    ci1, ci2, ci3 = st.columns([1, 1, 2])
-    i_ext = ci1.text_input("No. Ext.:", value=v_ext, disabled=usar_fiscal, key="i_ext")
-    i_int = ci2.text_input("No. Int.:", value=v_int, disabled=usar_fiscal, key="i_int")
-    i_col = ci3.text_input("Colonia:", value=v_colonia, disabled=usar_fiscal, key="i_col")
-    ci4, ci5 = st.columns(2)
-    i_cp = ci4.text_input("C.P.:", value=v_cp, disabled=usar_fiscal, key="i_cp")
-    i_mun = ci5.text_input("Alcaldía o Municipio:", value=v_municipio, disabled=usar_fiscal, key="i_mun")
-    ci6, ci7 = st.columns(2)
-    i_tel = ci6.text_input("Teléfono (Inspección):", key="i_tel")
-    i_edo = ci7.text_input("Estado:", value=v_estado if usar_fiscal else "", disabled=usar_fiscal, key="i_edo")
-    i_rep_insp = st.selectbox("Nombre del representante autorizado para recibir la visita de inspección:", ["Elige un elemento", "Jose ", "Danna ", "Aranza"])
-    i_correo_insp = st.selectbox("Correo electrónico (Inspección):", ["Elige un elemento", "anna@gaf.com", "danna@gaf.com", "aranza@gaf.com"])
-    v_fecha_prog = st.date_input("Fecha programada para la inspección:")
-    v_observaciones = st.text_area("Observaciones:", height=60)
-    st.markdown("---")
-    v_firmante = st.selectbox("RESPONSABLE DEL ORGANISMO DE INSPECCIÓN:", ["Jose de Jesus Leon", "Nicole Danae Jimenez", "Aranza Jimenez"])
-
-    # 5. GENERACIÓN
-    st.markdown('<div class="seccion-header">5. DESCARGAR DOCUMENTOS WORD</div>', unsafe_allow_html=True)
-    cols_botones = st.columns(len(partidas_editadas) if len(partidas_editadas) > 0 else 1)
+    d = st.session_state['cache_data']
+    all_partidas = st.session_state['cache_partidas']
     
-    for idx, p_data in enumerate(partidas_editadas):
-        with cols_botones[idx % len(cols_botones)]:
-            if st.button(f"⚙️ GENERAR PARTIDA {p_data['secuencia']}", key=f"btn_gen_{idx}", use_container_width=True):
-                
-                marca_dictamen = "X" if "DICTAMEN" in v_tipo_servicio.upper() else ""
-                marca_constancia = "X" if "CONSTANCIA" in v_tipo_servicio.upper() else ""
+    # --- SECCIÓN 1 Y 2 ---
+    st.markdown('<div class="seccion-header">1. ENCABEZADO Y DATOS DEL SOLICITANTE</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    v_tipo_servicio = c1.text_input("Solicitud (Servicio):", placeholder="Ej. Dictamen, Constancia...")
+    v_giro = c2.text_input("Giro de la empresa:", value="LOGISTICA Y DISTRIBUCION")
+    c3, c4 = st.columns(2)
+    v_fecha_sol = c3.date_input("Fecha de Solicitud:", value=date.today())
+    v_inspector = c4.selectbox("Inspector de Ingreso:", ["Elige un elemento", "Jose de Jesus Leon", "Nicole Danae Jimenez", "Aranza Jimenez"])
+    c5, c6 = st.columns(2)
+    v_folio_contrato = c5.text_input("Folio de Contrato de Prestación de Servicios:")
+    v_fecha_contrato = c6.date_input("Fecha De Contrato:", value=None)
 
-                gestor_final = "" if v_gestor == "Elige un elemento" else v_gestor
-                correo_gestor_final = "" if v_correo_gestor == "Elige un elemento" else v_correo_gestor
-                rep_ins_final = "" if i_rep_insp == "Elige un elemento" else i_rep_insp
-                correo_ins_final = "" if i_correo_insp == "Elige un elemento" else i_correo_insp
-                inspector_final = "" if v_inspector == "Elige un elemento" else v_inspector
-                pais_final = "" if p_data['pais'] == "Elige un país..." else p_data['pais']
-                
-                contexto = {
-                    'giro': v_giro, 'solicitud': v_tipo_servicio, 'fecha_solicitud': str(v_fecha_sol),
-                    'inspector': inspector_final, 'folio_contrato': v_folio_contrato, 
-                    'fecha_contrato': str(v_fecha_contrato) if v_fecha_contrato else "",
-                    'nombre_social': v_razon, 'calle': v_calle, 'num_ext': v_ext, 'num_int': v_int,
-                    'cp': v_cp, 'colonia': v_colonia, 'estado': v_estado, 'municipio': v_municipio,
-                    'telefono': v_telefono, 'correo': v_correo, 'rfc': v_rfc,
-                    'representante': v_rep_legal, 'gestor': gestor_final, 'correo_gestor': correo_gestor_final,
+    v_razon = st.text_input("Nombre y/o razón social del domicilio fiscal:", value=d['nombre_social'])
+    col_d1, col_d2, col_d3 = st.columns([3, 1, 1])
+    v_calle = col_d1.text_input("Calle:", value=d.get('calle', ''))
+    v_ext = col_d2.text_input("No. Ext.:", value=d.get('num_ext', ''))
+    v_int = col_d3.text_input("No. Int.:", value=d.get('num_int', ''))
+    col_d4, col_d5 = st.columns([1, 2])
+    v_cp = col_d4.text_input("C. P.:", value=d.get('cp', ''))
+    v_colonia = col_d5.text_input("Colonia:", value=d.get('colonia', ''))
+    col_d6, col_d7 = st.columns([1, 1])
+    v_estado = col_d6.text_input("Estado:", value=d.get('estado', ''))
+    v_municipio = col_d7.text_input("Alcaldía o municipio:", value=d.get('municipio', ''))
+    
+    v_rfc = st.text_input("R. F. C.:", value=d['rfc'])
+    v_rep_legal = st.text_input("Nombre del Representante Legal:")
+    c_gestor1, c_gestor2 = st.columns(2)
+    v_gestor = c_gestor1.selectbox("Nombre del gestor o apoderado (Opcional):", ["Elige un elemento", "Gestor A", "Gestor B"])
+    v_correo_gestor = c_gestor2.selectbox("Correo electrónico (Gestor):", ["Elige un elemento", "gestor@empresa.com", "contacto@empresa.com"])
+
+    # --- SECCIÓN: SELECCIÓN ---
+    st.markdown('<div class="seccion-header">2. SELECCIONAR PARTIDAS A PROCESAR</div>', unsafe_allow_html=True)
+    st.info("💡 **Marca las casillas** de las partidas que deseas incluir en el documento único.")
+    
+    partidas_seleccionadas = []
+    cols_check = st.columns(min(len(all_partidas), 4) if len(all_partidas) > 0 else 1)
+    
+    for idx, p in enumerate(all_partidas):
+        with cols_check[idx % len(cols_check)]:
+            if st.checkbox(f"Partida {p['secuencia']}", value=True, key=f"chk_{p['secuencia']}"):
+                partidas_seleccionadas.append(p['secuencia'])
+
+    if not partidas_seleccionadas:
+        st.warning("⚠️ Debes seleccionar al menos una partida para generar el documento.")
+    else:
+        # --- SECCIÓN 3: EDICIÓN ---
+        st.markdown('<div class="seccion-header">3. DATOS DE LOS PRODUCTOS SELECCIONADOS</div>', unsafe_allow_html=True)
+        
+        datos_editados = {}
+
+        for p in all_partidas:
+            if p['secuencia'] in partidas_seleccionadas:
+                with st.expander(f"📦 Editar Partida {p['secuencia']} - Fracción: {p['fraccion']}"):
+                    p_prod = st.text_area("Producto:", value=p.get('producto', ''), height=60, key=f"prod_{p['secuencia']}")
+                    p_marca = st.text_input("Marca:", key=f"marca_{p['secuencia']}")
+                    p_modelo = st.text_input("Modelo(s):", key=f"mod_{p['secuencia']}")
+                    p_pais = st.selectbox("País de origen:", PAISES_ORIGEN, key=f"pais_{p['secuencia']}")
+                    p_pedimento = st.text_input("*Pedimento:", value=d['pedimento'], key=f"ped_{p['secuencia']}")
+                    p_factura = st.text_input("*Factura y/o lista de empaque:", value=d['factura_auto'], key=f"f_{p['secuencia']}")
+                    p_lote = st.text_input("*Tamaño del lote:", key=f"lote_{p['secuencia']}")
+                    p_umc = st.text_input("*UMC: (Unidad de Medida Comercial)", value="PIEZA", key=f"umc_{p['secuencia']}")
+                    p_folios = st.text_input("Folio(s):", key=f"fol_{p['secuencia']}")
                     
-                    'producto': p_data['producto'], 'marca': p_data['marca'], 'modelo': p_data['modelo'],
-                    'pais': pais_final, 'pedimento': p_data['pedimento'], 'factura': p_data['factura'],
-                    'lote': p_data['lote'], 'umc': p_data['umc'], 'fraccion': p_data['fraccion'], 'folios': p_data['folios'],
-                    
-                    'calle_ins': i_calle, 'ext_ins': i_ext, 'int_ins': i_int, 'col_ins': i_col,
-                    'cp_ins': i_cp, 'mun_ins': i_mun, 'tel_ins': i_tel, 'edo_ins': i_edo,
-                    'rep_ins': rep_ins_final, 'correo_ins': correo_ins_final,
-                    'fecha_programada': str(v_fecha_prog), 'observaciones': v_observaciones,
-                    'nombre_firmante': v_firmante,
-                    'dictamen': marca_dictamen,
-                    'constancia': marca_constancia
-                }
-                
-                doc = DocxTemplate(TEMPLATE_PATH)
-                if os.path.exists(FIRMA_PATH):
-                    contexto['imagen_firma'] = InlineImage(doc, FIRMA_PATH, width=Mm(35))
-                else:
-                    contexto['imagen_firma'] = ""
-                doc.render(contexto)
-                buffer = BytesIO()
-                doc.save(buffer)
-                buffer.seek(0)
-                
-                st.download_button(
-                    label=f"⬇️ GUARDAR PARTIDA {p_data['secuencia']}",
-                    data=buffer,
-                    file_name=f"Solicitud_{v_rfc}_Partida_{p_data['secuencia']}.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    key=f"dl_real_{idx}",
-                    use_container_width=True
-                )
+                    datos_editados[p['secuencia']] = {
+                        'secuencia': p['secuencia'], 'producto': p_prod, 'marca': p_marca,
+                        'modelo': p_modelo, 'pais': p_pais if p_pais != "Elige un país..." else "", 
+                        'pedimento': p_pedimento, 'factura': p_factura, 'lote': p_lote, 'umc': p_umc, 
+                        'fraccion': p['fraccion'], 'folios': p_folios
+                    }
+
+        # --- SECCIÓN 4: INSPECCIÓN ---
+        st.markdown('<div class="seccion-header">4. DATOS DE INSPECCIÓN</div>', unsafe_allow_html=True)
+        usar_fiscal = st.checkbox("📍 Usar el mismo domicilio fiscal", value=True)
+        i_calle = st.text_input("Calle (Insp):", value=v_calle, disabled=usar_fiscal, key="i_calle")
+        ci1, ci2, ci3 = st.columns([1, 1, 2])
+        i_ext = ci1.text_input("No. Ext.:", value=v_ext, disabled=usar_fiscal, key="i_ext")
+        i_int = ci2.text_input("No. Int.:", value=v_int, disabled=usar_fiscal, key="i_int")
+        i_col = ci3.text_input("Colonia:", value=v_colonia, disabled=usar_fiscal, key="i_col")
+        ci4, ci5 = st.columns(2)
+        i_cp = ci4.text_input("C.P.:", value=v_cp, disabled=usar_fiscal, key="i_cp")
+        i_mun = ci5.text_input("Alcaldía/Municipio:", value=v_municipio, disabled=usar_fiscal, key="i_mun")
+        ci6, ci7 = st.columns(2)
+        i_tel = ci6.text_input("Teléfono:", key="i_tel")
+        i_edo = ci7.text_input("Estado:", value=v_estado if usar_fiscal else "", disabled=usar_fiscal, key="i_edo")
+        i_rep_insp = st.selectbox("Representante inspección:", ["Elige un elemento", "Representante 1", "Representante 2"])
+        i_correo_insp = st.selectbox("Correo inspección:", ["Elige un elemento", "correo1@empresa.com", "correo2@empresa.com"])
+        v_fecha_prog = st.date_input("Fecha programada:")
+        v_observaciones = st.text_area("Observaciones:", height=60)
+        v_firmante = st.selectbox("RESPONSABLE FIRMANTE:", ["Jose de Jesus Leon", "Nicole Danae Jimenez", "Aranza Jimenez"])
+
+        # --- SECCIÓN 5: DESCARGA FINAL ---
+        st.markdown('<div class="seccion-header">5. DESCARGAR DOCUMENTO FINAL</div>', unsafe_allow_html=True)
+        
+        lista_final_para_word = []
+        for p in all_partidas:
+            if p['secuencia'] in partidas_seleccionadas:
+                lista_final_para_word.append(datos_editados[p['secuencia']])
+
+        if st.button("📄 GENERAR DOCUMENTO UNIFICADO (WORD)", type="primary", use_container_width=True):
+            
+            marca_dictamen = "X" if "DICTAMEN" in v_tipo_servicio.upper() else ""
+            marca_constancia = "X" if "CONSTANCIA" in v_tipo_servicio.upper() else ""
+            gestor_final = "" if v_gestor == "Elige un elemento" else v_gestor
+            correo_gestor_final = "" if v_correo_gestor == "Elige un elemento" else v_correo_gestor
+            rep_ins_final = "" if i_rep_insp == "Elige un elemento" else i_rep_insp
+            correo_ins_final = "" if i_correo_insp == "Elige un elemento" else i_correo_insp
+            inspector_final = "" if v_inspector == "Elige un elemento" else v_inspector
+            
+            contexto = {
+                'solicitud': v_tipo_servicio, 'giro': v_giro, 'fecha_solicitud': str(v_fecha_sol),
+                'inspector': inspector_final, 'folio_contrato': v_folio_contrato, 
+                'fecha_contrato': str(v_fecha_contrato) if v_fecha_contrato else "",
+                'nombre_social': v_razon, 'calle': v_calle, 'num_ext': v_ext, 'num_int': v_int,
+                'cp': v_cp, 'colonia': v_colonia, 'estado': v_estado, 'municipio': v_municipio,
+                'telefono': "", 'correo': "", 'rfc': v_rfc,
+                'representante': v_rep_legal, 'gestor': gestor_final, 'correo_gestor': correo_gestor_final,
+                'calle_ins': i_calle, 'ext_ins': i_ext, 'int_ins': i_int, 'col_ins': i_col,
+                'cp_ins': i_cp, 'mun_ins': i_mun, 'tel_ins': i_tel, 'edo_ins': i_edo,
+                'rep_ins': rep_ins_final, 'correo_ins': correo_ins_final,
+                'fecha_programada': str(v_fecha_prog), 'observaciones': v_observaciones,
+                'nombre_firmante': v_firmante, 'dictamen': marca_dictamen, 'constancia': marca_constancia,
+                'lista_productos': lista_final_para_word
+            }
+            
+            doc = DocxTemplate(TEMPLATE_PATH)
+            if os.path.exists(FIRMA_PATH):
+                contexto['imagen_firma'] = InlineImage(doc, FIRMA_PATH, width=Mm(35))
+            else:
+                contexto['imagen_firma'] = ""
+            
+            doc.render(contexto)
+            buf = BytesIO()
+            doc.save(buf)
+            buf.seek(0)
+            
+            st.download_button(
+                label="⬇️ DESCARGAR WORD CON TODAS LAS PARTIDAS",
+                data=buf,
+                file_name=f"Solicitud_Unificada_{v_rfc}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
 
 else:
     st.markdown("""
@@ -351,9 +360,4 @@ else:
         <h2 style="color: #0d2b49;">👋 Bienvenido al Gestor de Solicitudes</h2>
         <p style="font-size: 16px; color: #495057;">Por favor, arrastra un archivo <b>PDF de Pedimento</b> en la barra superior para comenzar a extraer los datos.</p>
     </div>
-
     """, unsafe_allow_html=True)
-
-
-
-
